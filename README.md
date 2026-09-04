@@ -43,3 +43,9 @@ py manage.py runserver
 ```
 
 Static files are collected and served with WhiteNoise. Uploaded admin media is not persistent on Vercel; use object storage such as Cloudinary or S3 for car uploads in production.
+
+## Render setup
+
+The repository includes `render.yaml` for a Python web service. Create a PostgreSQL database in Render, then set its internal connection string as `DATABASE_URL` on the web service. Render will install dependencies, collect static files, run migrations, and start Gunicorn automatically.
+
+For uploaded car images, use persistent object storage such as Cloudinary or Amazon S3 because the web service filesystem is not intended for permanent uploads.
