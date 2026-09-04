@@ -48,4 +48,10 @@ Static files are collected and served with WhiteNoise. Uploaded admin media is n
 
 The repository includes `render.yaml` for a Python web service. Create a PostgreSQL database in Render, then set its internal connection string as `DATABASE_URL` on the web service. Render will install dependencies, collect static files, run migrations, and start Gunicorn automatically.
 
+For a manually configured Render service, use this start command:
+
+```text
+gunicorn sam.wsgi:application --bind 0.0.0.0:$PORT --access-logfile - --error-logfile -
+```
+
 For uploaded car images, use persistent object storage such as Cloudinary or Amazon S3 because the web service filesystem is not intended for permanent uploads.
