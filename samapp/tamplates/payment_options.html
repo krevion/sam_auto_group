@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}Payment Options | SAM Auto Group{% endblock %}
+
+{% block extra_head %}
+<style>
+    .payment-hero { padding: 88px 0 78px; color: white; background: var(--ink); }
+    .payment-hero-grid { display: grid; grid-template-columns: 1fr 0.8fr; align-items: end; gap: 70px; }
+    .payment-hero h1, .payment-section h2 { margin: 0; font-family: "Space Grotesk", sans-serif; line-height: 0.96; letter-spacing: -0.045em; }
+    .payment-hero h1 { max-width: 700px; font-size: clamp(3.2rem, 6vw, 6.2rem); }
+    .payment-hero h1 span { color: var(--accent); }
+    .payment-lead { max-width: 440px; margin: 26px 0 0; color: #aebbb9; font-size: 1.06rem; }
+    .payment-note { padding: 24px; border: 1px solid #3b4b50; border-radius: 14px; background: #1b292e; }
+    .payment-note strong { display: block; color: var(--accent); font-family: "Space Grotesk", sans-serif; font-size: 2.2rem; line-height: 1; }
+    .payment-note p { margin: 12px 0 0; color: #bcc8c6; font-size: 0.88rem; }
+    .payment-section { padding: 94px 0 0; }
+    .payment-heading { display: flex; align-items: end; justify-content: space-between; gap: 30px; margin-bottom: 30px; }
+    .payment-heading h2 { max-width: 580px; font-size: clamp(2.3rem, 4vw, 4rem); }
+    .payment-heading p { max-width: 330px; margin: 0; color: var(--muted); }
+    .payment-options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .payment-card { position: relative; min-height: 310px; padding: 28px; border: 1px solid var(--line); border-radius: 18px; background: white; }
+    .payment-card.featured { color: white; border-color: var(--ink); background: var(--ink); }
+    .payment-card-icon { width: 48px; height: 48px; display: grid; place-items: center; margin-bottom: 58px; border-radius: 13px; color: var(--ink); background: var(--accent); font-family: "Space Grotesk", sans-serif; font-weight: 700; }
+    .payment-card:not(.featured) .payment-card-icon { background: #e8edeb; }
+    .payment-card h3 { margin: 0 0 10px; font-family: "Space Grotesk", sans-serif; font-size: 1.55rem; }
+    .payment-card p { max-width: 420px; margin: 0; color: var(--muted); font-size: 0.92rem; }
+    .payment-card.featured p { color: #aebbb9; }
+    .payment-tag { position: absolute; top: 28px; right: 28px; padding: 6px 10px; border-radius: 999px; color: var(--ink); background: var(--accent); font-size: 0.72rem; font-weight: 700; }
+    .bank-strip { margin-top: 18px; padding: 28px; border-radius: 18px; background: #e8edeb; }
+    .bank-strip strong { display: block; margin-bottom: 8px; font-family: "Space Grotesk", sans-serif; font-size: 1.25rem; }
+    .bank-strip p { max-width: 670px; margin: 0; color: var(--muted); }
+    .payment-process { margin-top: 94px; padding: 78px 0; color: white; background: #e8edeb; }
+    .payment-process-inner { color: var(--ink); }
+    .payment-process-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; margin-top: 38px; }
+    .payment-step { padding-top: 17px; border-top: 1px solid #c8d2cf; }
+    .payment-step-number { color: var(--orange); font-family: "Space Grotesk", sans-serif; font-size: 1.1rem; font-weight: 700; }
+    .payment-step h3 { margin: 18px 0 7px; font-family: "Space Grotesk", sans-serif; font-size: 1.25rem; }
+    .payment-step p { margin: 0; color: var(--muted); font-size: 0.9rem; }
+    .payment-cta { margin-top: 94px; padding: 56px 45px; border-radius: 18px; background: var(--accent); }
+    .payment-cta h2 { max-width: 560px; margin-bottom: 24px; font-size: clamp(2.2rem, 4vw, 3.7rem); }
+    @media (max-width: 800px) {
+        .payment-hero-grid { grid-template-columns: 1fr; gap: 38px; }
+        .payment-hero { padding: 66px 0 58px; }
+        .payment-heading { display: block; }
+        .payment-heading p { margin-top: 18px; }
+        .payment-options-grid, .payment-process-grid { grid-template-columns: 1fr; }
+        .payment-card { min-height: auto; }
+    }
+    @media (max-width: 520px) {
+        .payment-cta { padding: 38px 24px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="payment-hero">
+    <div class="content payment-hero-grid">
+        <div>
+            <div class="eyebrow">Payment options</div>
+            <h1>Choose the way you want to <span>drive home.</span></h1>
+            <p class="payment-lead">We keep payment simple, flexible, and transparent. Pay in the way that works for you, with support from our team at every step.</p>
+        </div>
+        <div class="payment-note">
+            <strong>All banks welcome.</strong>
+            <p>Already have a bank or finance provider? No problem. We work with your preferred bank so you can choose with confidence.</p>
+        </div>
+    </div>
+</section>
+
+<section class="payment-section content">
+    <div class="payment-heading">
+        <div>
+            <div class="eyebrow" style="color: var(--orange);">Ways to pay</div>
+            <h2>Clear choices. No unnecessary pressure.</h2>
+        </div>
+        <p>Whichever route you choose, our team will explain the process clearly before you commit.</p>
+    </div>
+    <div class="payment-options-grid">
+        <article class="payment-card featured">
+            <span class="payment-tag">Flexible option</span>
+            <div class="payment-card-icon">HP</div>
+            <h3>Hire purchase</h3>
+            <p>Hire purchase is available on our imported cars only. We can help you understand your options and work with your preferred bank.</p>
+        </article>
+        <article class="payment-card">
+            <div class="payment-card-icon">$</div>
+            <h3>Cash payment</h3>
+            <p>Prefer to pay in full? Cash purchases are welcome. We will make the paperwork and handover straightforward from start to finish.</p>
+        </article>
+    </div>
+    <div class="bank-strip">
+        <strong>Bring your bank. We will work with them.</strong>
+        <p>We accept finance arrangements through all banks. Talk to us about the vehicle you want, then choose the banking partner and payment structure that suits you.</p>
+    </div>
+</section>
+
+<section class="payment-process">
+    <div class="content payment-process-inner">
+        <div class="eyebrow" style="color: var(--orange);">Simple from the start</div>
+        <h2>How it works</h2>
+        <div class="payment-process-grid">
+            <article class="payment-step"><span class="payment-step-number">01</span><h3>Choose your car</h3><p>Find the vehicle that fits your life from our carefully selected inventory.</p></article>
+            <article class="payment-step"><span class="payment-step-number">02</span><h3>Choose your payment</h3><p>Tell us whether you are paying cash or arranging hire purchase on an imported car.</p></article>
+            <article class="payment-step"><span class="payment-step-number">03</span><h3>Drive with confidence</h3><p>We guide you through the final details and get you ready for the road ahead.</p></article>
+        </div>
+        <div class="payment-cta">
+            <div class="eyebrow" style="color: var(--ink);">Have a question?</div>
+            <h2>Let’s find a payment option that feels right.</h2>
+            <a class="button button-primary" href="{% url 'samapp:contact' %}">Talk to our team <span aria-hidden="true">&#8599;</span></a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pay sam</title>
+</head>
+<body>
+    <h2>sam auto group</h2>
+</body>
+</html>

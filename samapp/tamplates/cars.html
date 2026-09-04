@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Our Cars | SAM Auto Group{% endblock %}
+
+{% block extra_head %}
+<style>
+	.inventory-hero { padding: 82px 0 68px; color: white; background: var(--ink); }
+	.inventory-hero-grid { display: flex; align-items: end; justify-content: space-between; gap: 40px; }
+	.inventory-hero h1 { max-width: 620px; margin: 0; font-family: "Space Grotesk", sans-serif; font-size: clamp(3.2rem, 6vw, 6rem); line-height: 0.94; letter-spacing: -0.045em; }
+	.inventory-hero h1 span { color: var(--accent); }
+	.inventory-hero p { max-width: 330px; margin: 0 0 4px; color: #aebbb9; }
+	.inventory-tools { padding: 24px 0; border-bottom: 1px solid var(--line); background: white; }
+	.filter-form { display: grid; grid-template-columns: 1.4fr 1fr 1fr auto; gap: 10px; }
+	.filter-field { width: 100%; min-height: 46px; padding: 0 14px; border: 1px solid var(--line); border-radius: 9px; color: var(--ink); background: #f8faf9; outline: none; }
+	.filter-field:focus { border-color: var(--accent-dark); box-shadow: 0 0 0 3px rgba(214,243,74,0.25); }
+	.filter-button { min-height: 46px; padding: 0 21px; border: 0; border-radius: 9px; color: var(--ink); background: var(--accent); font-weight: 700; cursor: pointer; }
+	.inventory-section { padding: 68px 0 0; }
+	.inventory-topline { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin-bottom: 27px; }
+	.inventory-topline h2 { margin: 0; font-family: "Space Grotesk", sans-serif; font-size: 2rem; letter-spacing: -0.03em; }
+	.inventory-count { color: var(--muted); font-size: 0.88rem; }
+	.car-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+	.car-card { overflow: hidden; border: 1px solid var(--line); border-radius: 16px; background: white; transition: transform 180ms ease, box-shadow 180ms ease; }
+	.car-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+	.car-card-image { position: relative; aspect-ratio: 1.28 / 1; overflow: hidden; background: #dce3e1; }
+	.car-card-image img { width: 100%; height: 100%; object-fit: cover; transition: transform 450ms ease; }
+	.sold-badge { position: absolute; top: 14px; right: 14px; padding: 6px 10px; border-radius: 999px; color: white; background: var(--orange); font-size: 0.72rem; font-weight: 700; }
+	.car-card:hover .car-card-image img { transform: scale(1.05); }
+	.card-number { position: absolute; top: 14px; left: 14px; min-width: 34px; padding: 5px 9px; border-radius: 999px; color: var(--ink); background: var(--accent); font-family: "Space Grotesk", sans-serif; font-size: 0.75rem; font-weight: 700; text-align: center; }
+	.car-card-body { min-height: 168px; padding: 19px; }
+	.car-card-title { min-height: 28px; margin: 0 0 9px; font-family: "Space Grotesk", sans-serif; font-size: 1.22rem; }
+	.car-card-description { min-height: 44px; margin: 0 0 16px; color: var(--muted); font-size: 0.87rem; }
+	.car-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 13px; border-top: 1px solid var(--line); }
+	.car-card-price { color: var(--ink); font-size: 0.93rem; font-weight: 700; }
+	.card-link { color: var(--orange); font-size: 0.85rem; font-weight: 700; }
+	.empty-state { padding: 52px 24px; border: 1px dashed #b8c5c1; border-radius: 16px; color: var(--muted); text-align: center; }
+	.empty-state h3 { margin: 0 0 8px; color: var(--ink); font-family: "Space Grotesk", sans-serif; }
+	@media (max-width: 850px) {
+		.filter-form { grid-template-columns: 1fr 1fr; }
+		.filter-button { width: 100%; }
+		.car-grid { grid-template-columns: repeat(2, 1fr); }
+	}
+	@media (max-width: 600px) {
+		.inventory-hero { padding: 62px 0 52px; }
+		.inventory-hero-grid { display: block; }
+		.inventory-hero p { margin-top: 22px; }
+		.filter-form, .car-grid { grid-template-columns: 1fr; }
+		.inventory-section { padding-top: 50px; }
+	}
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="inventory-hero">
+	<div class="content inventory-hero-grid">
+		<div>
+			<div class="eyebrow">The SAM collection</div>
+			<h1>Find your next <span>great drive.</span></h1>
+		</div>
+		<p>Browse our carefully selected vehicles. Every card is ready for you to add the details that matter to your customers.</p>
+	</div>
+</section>
+
+<section class="inventory-tools">
+	<div class="content">
+		<form class="filter-form" method="get" action="{% url 'samapp:cars' %}">
+			<input class="filter-field" type="search" name="q" value="{{ search_query }}" placeholder="Search make, model, or feature" aria-label="Search make, model, or feature">
+			<select class="filter-field" name="body_type" aria-label="Filter by body type">
+				<option value="">All body types</option>
+				{% for type in body_types %}<option value="{{ type }}"{% if selected_body_type == type %} selected{% endif %}>{{ type }}</option>{% endfor %}
+			</select>
+			<input class="filter-field" type="number" name="max_price" value="{{ max_price }}" placeholder="Maximum price" min="0" step="0.01" aria-label="Maximum price">
+			<button class="filter-button" type="submit">Search cars</button>
+		</form>
+	</div>
+</section>
+
+<section class="inventory-section content">
+	<div class="inventory-topline">
+		<h2>Available vehicles</h2>
+		{% if cars %}<span class="inventory-count">{{ cars|length }} vehicle{{ cars|length|pluralize }} found</span>{% endif %}
+	</div>
+
+	{% if cars %}
+		<div class="car-grid">
+			{% for car in cars %}
+				<article class="car-card">
+					<a href="{% url 'samapp:car_detail' car.pk %}">
+						<div class="car-card-image">
+							{% if car.display_image %}<img src="{{ car.display_image }}" alt="{{ car }}">{% endif %}
+							<span class="card-number">{{ forloop.counter|stringformat:"02d" }}</span>
+							{% if car.availability == 'sold' %}<span class="sold-badge">Sold out</span>{% endif %}
+						</div>
+					</a>
+					<div class="car-card-body">
+						<h3 class="car-card-title">{{ car.make }} {{ car.model }}</h3>
+						<p class="car-card-description">{{ car.description|default:"Add a short description for this vehicle here." }}</p>
+						<div class="car-card-footer"><span class="car-card-price">{% if car.availability == 'sold' %}Sold out{% elif car.price %}{{ car.price|floatformat:2 }}{% else %}Price coming soon{% endif %}</span><a class="card-link" href="{% url 'samapp:car_detail' car.pk %}">View car &#8594;</a></div>
+					</div>
+				</article>
+			{% endfor %}
+		</div>
+	{% elif not has_database_cars %}
+		{% if static_cars %}
+			<div class="car-grid">
+				{% for car in static_cars %}
+					<article class="car-card">
+						<div class="car-card-image"><img src="{% static car.image %}" alt="{{ car.title }}"><span class="card-number">{{ car.number|stringformat:"02d" }}</span></div>
+						<div class="car-card-body">
+							<h3 class="car-card-title">{{ car.title }}</h3>
+							<p class="car-card-description">{{ car.description }}</p>
+							<div class="car-card-footer"><span class="car-card-price">{{ car.price_label }}</span><span class="card-link">Details soon</span></div>
+						</div>
+					</article>
+				{% endfor %}
+			</div>
+		{% else %}
+			<div class="empty-state"><h3>No matching cars found</h3><p>Try a make, model, feature, or category such as SUV, 4WD, sunroof, hybrid, or leather.</p></div>
+		{% endif %}
+	{% endif %}
+</section>
+{% endblock %}
