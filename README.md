@@ -54,4 +54,10 @@ For a manually configured Render service, use this start command:
 gunicorn sam.wsgi:application --bind 0.0.0.0:$PORT --access-logfile - --error-logfile -
 ```
 
+For a manually created Render service, use this build command:
+
+```text
+pip install -r requirements.txt && bash build.sh
+```
+
 For uploaded car images, use persistent object storage such as Cloudinary or Amazon S3 because the web service filesystem is not intended for permanent uploads.
