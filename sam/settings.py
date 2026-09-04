@@ -28,11 +28,11 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'dev-only-change-this-secret-ke
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() == 'true'
 
-ALLOWED_HOSTS = [
-    host.strip() for host in os.environ.get(
-        'ALLOWED_HOSTS', 'localhost,127.0.0.1,testserver'
-    ).split(',') if host.strip()
-]
+allowed_hosts = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,testserver').split(',')
+render_hostname = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if render_hostname:
+    allowed_hosts.append(render_hostname)
+ALLOWED_HOSTS = [host.strip() for host in allowed_hosts if host.strip()]
 
 
 # Application definition
@@ -134,10 +134,10 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CSRF_TRUSTED_ORIGINS = [
-    origin.strip() for origin in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',')
-    if origin.strip()
-]
+csrf_origins = os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',')
+if render_hostname:
+    csrf_origins.append(f'https://{render_hostname}')
+CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in csrf_origins if origin.strip()]
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SECURE_SSL_REDIRECT = not DEBUG
