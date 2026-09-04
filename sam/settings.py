@@ -81,11 +81,12 @@ WSGI_APPLICATION = 'sam.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+database_url = os.environ.get('DATABASE_URL')
 DATABASES = {
     'default': dj_database_url.config(
         default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
         conn_max_age=600,
-        ssl_require=not DEBUG,
+        ssl_require=bool(database_url) and not DEBUG,
     )
 }
 
