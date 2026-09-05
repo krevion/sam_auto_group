@@ -228,6 +228,17 @@ def _search_static_cars(cars, query):
 	return [car for _, car in sorted(results, key=lambda result: result[0], reverse=True)]
 
 
+CAR_BRANDS = ('Toyota', 'Nissan', 'Mazda', 'Mercedes-Benz', 'Subaru', 'Honda', 'Volkswagen')
+
+
+def _static_car_brand(car):
+	title = car['title'].lower()
+	for brand in CAR_BRANDS:
+		if brand.lower() in title or (brand == 'Mercedes-Benz' and 'mercedes' in title):
+			return brand
+	return 'Other'
+
+
 def home(request):
 	featured_cars = Car.objects.filter(
 		availability=Car.Availability.AVAILABLE,
@@ -243,7 +254,7 @@ def cars(request):
 	)
 	has_database_cars = inventory.exists()
 	query = request.GET.get('q', '').strip()
-	body_type = request.GET.get('body_type', '').strip()
+	brand = request.GET.get('brand', '').strip()
 	max_price = request.GET.get('max_price', '').strip()
 
 	if query:
@@ -252,8 +263,11 @@ def cars(request):
 			| Q(model__icontains=query)
 			| Q(description__icontains=query)
 		)
-	if body_type:
-		inventory = inventory.filter(body_type__iexact=body_type)
+	if brand:
+		if brand == 'Other':
+			inventory = inventory.exclude(make__in=CAR_BRANDS)
+		else:
+			inventory = inventory.filter(make__icontains=brand.replace('-Benz', ''))
 	if max_price:
 		try:
 			inventory = inventory.filter(price__lte=Decimal(max_price))
@@ -261,8 +275,8 @@ def cars(request):
 			pass
 
 	static_inventory = _search_static_cars(STATIC_CARS, query)
-	if body_type:
-		static_inventory = [car for car in static_inventory if car['body_type'].lower() == body_type.lower()]
+	if brand:
+		static_inventory = [car for car in static_inventory if _static_car_brand(car) == brand]
 	if max_price:
 		try:
 			static_inventory = [car for car in static_inventory if car['price'] is None or car['price'] <= Decimal(max_price)]
@@ -275,9 +289,9 @@ def cars(request):
 		'static_cars': static_inventory,
 		'inventory': inventory,
 		'search_query': query,
-		'selected_body_type': body_type,
+		'selected_brand': brand,
 		'max_price': max_price,
-		'body_types': sorted({car['body_type'] for car in STATIC_CARS} | set(Car.objects.exclude(body_type='').values_list('body_type', flat=True))),
+		'car_brands': CAR_BRANDS,
 	})
 
 

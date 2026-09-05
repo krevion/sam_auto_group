@@ -65,9 +65,10 @@
 	<div class="content">
 		<form class="filter-form" method="get" action="{% url 'samapp:cars' %}">
 			<input class="filter-field" type="search" name="q" value="{{ search_query }}" placeholder="Search make, model, or feature" aria-label="Search make, model, or feature">
-			<select class="filter-field" name="body_type" aria-label="Filter by body type">
-				<option value="">All body types</option>
-				{% for type in body_types %}<option value="{{ type }}"{% if selected_body_type == type %} selected{% endif %}>{{ type }}</option>{% endfor %}
+			<select class="filter-field" name="brand" aria-label="Filter by car brand">
+				<option value="">All car brands</option>
+				{% for brand in car_brands %}<option value="{{ brand }}"{% if selected_brand == brand %} selected{% endif %}>{{ brand }}</option>{% endfor %}
+				<option value="Other"{% if selected_brand == 'Other' %} selected{% endif %}>Other</option>
 			</select>
 			<input class="filter-field" type="number" name="max_price" value="{{ max_price }}" placeholder="Maximum price" min="0" step="0.01" aria-label="Maximum price">
 			<button class="filter-button" type="submit">Search cars</button>
