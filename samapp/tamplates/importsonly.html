@@ -31,7 +31,23 @@
 	.import-card-description { min-height: 44px; margin: 0 0 16px; color: var(--muted); font-size: 0.87rem; }
 	.import-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 13px; border-top: 1px solid var(--line); }
 	.import-card-price { color: var(--ink); font-size: 0.93rem; font-weight: 700; }
-	.import-card-link { color: var(--orange); font-size: 0.85rem; font-weight: 700; }
+	.import-card-link { border: 0; background: transparent; color: var(--orange); font-size: 0.85rem; font-weight: 700; cursor: pointer; padding: 0; }
+	.car-modal { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 100; }
+	.car-modal.is-open { display: flex; }
+	.car-modal-backdrop { position: absolute; inset: 0; background: rgba(16, 24, 32, 0.7); }
+	.car-modal-dialog { position: relative; z-index: 1; width: min(820px, calc(100% - 32px)); max-height: 90vh; overflow: auto; border-radius: 22px; background: #fff; box-shadow: 0 30px 70px rgba(16, 24, 32, 0.25); }
+	.car-modal-layout { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 0; }
+	.car-modal-image { background: #dce3e1; }
+	.car-modal-image img { width: 100%; height: 100%; min-height: 310px; object-fit: cover; }
+	.car-modal-body { padding: 28px; }
+	.car-modal-close { position: absolute; top: 16px; right: 16px; width: 36px; height: 36px; border: 0; border-radius: 50%; background: rgba(16, 24, 32, 0.7); color: #fff; font-size: 1.4rem; cursor: pointer; }
+	.car-modal-kicker { margin: 0 0 8px; color: var(--orange); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+	.car-modal-title { margin: 0 0 10px; font-family: "Space Grotesk", sans-serif; font-size: clamp(1.8rem, 3vw, 2.7rem); line-height: 1; letter-spacing: -0.04em; }
+	.car-modal-price { margin: 0 0 20px; font-size: 1.5rem; font-weight: 800; }
+	.car-modal-meta { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 20px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
+	.car-modal-meta div span { display: block; color: var(--muted); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+	.car-modal-meta div strong { display: block; margin-top: 4px; }
+	.car-modal-description { margin: 20px 0 0; color: var(--muted); line-height: 1.7; }
 	.imports-note { margin-top: 70px; padding: 32px; border-radius: 16px; color: white; background: var(--ink); }
 	.imports-note h2 { margin: 0 0 8px; font-family: "Space Grotesk", sans-serif; font-size: 1.8rem; }
 	.imports-note p { max-width: 700px; margin: 0; color: #aebbb9; }
@@ -84,7 +100,7 @@
 			<div class="import-card-body">
 				<h3 class="import-card-title">{{ car.year }} {{ car.make }} {{ car.model }}</h3>
 				<p class="import-card-description">{{ car.description|default:"Vehicle details coming soon." }}</p>
-				<div class="import-card-footer"><span class="import-card-price">{% if car.availability == 'sold' %}Sold out{% elif car.price %}KSh {{ car.price|floatformat:0 }}{% else %}Price on request{% endif %}</span><a class="import-card-link" href="{% url 'samapp:car_detail' car.pk %}">View car &#8594;</a></div>
+				<div class="import-card-footer"><span class="import-card-price">{% if car.availability == 'sold' %}Sold out{% elif car.price %}KSh {{ car.price|floatformat:0 }}{% else %}Price on request{% endif %}</span><button class="import-card-link details-trigger" type="button" data-car-title="{{ car.year }} {{ car.make }} {{ car.model }}" data-car-price="{% if car.availability == 'sold' %}Sold out{% elif car.price %}KSh {{ car.price|floatformat:2 }}{% else %}Price on request{% endif %}" data-car-image="{% if car.display_image %}{{ car.display_image }}{% endif %}" data-car-condition="{{ car.get_condition_display }}" data-car-body="{{ car.body_type|default:'Not specified' }}" data-car-mileage="{{ car.mileage }} km" data-car-status="{{ car.get_availability_display }}" data-car-description="{{ car.description|default:'No detailed description has been added for this vehicle yet.' }}">View details</button></div>
 			</div>
 		</article>
 		{% endfor %}
@@ -97,32 +113,32 @@
 			<div class="import-card-body">
 				<h3 class="import-card-title">{{ car.title }}</h3>
 				<p class="import-card-description">{{ car.description }}</p>
-				<div class="import-card-footer"><span class="import-card-price">{{ car.price_label }}</span><span class="import-card-link">View details</span></div>
+				<div class="import-card-footer"><span class="import-card-price">{{ car.price_label }}</span><button class="import-card-link details-trigger" type="button" data-car-title="{{ car.title }}" data-car-price="{{ car.price_label }}" data-car-image="{% static car.image %}" data-car-condition="Imported vehicle" data-car-body="Vehicle details" data-car-mileage="Available on request" data-car-status="Available" data-car-description="{{ car.description }}">View details</button></div>
 			</div>
 		</article>
 		{% endfor %}
 	</div>
 	{% else %}
 	<div class="imports-grid">
-		<article class="import-card"><div class="import-card-image"><img src="{% static 'imports/import 1.jpeg' %}" alt="Imported vehicle 1"><span class="import-number">01</span></div><div class="import-card-body"><h3 class="import-card-title">Vehicle title</h3><p class="import-card-description">Add your car description here.</p><div class="import-card-footer"><span class="import-card-price">Price coming soon</span><span class="import-card-link">View details</span></div></div></article>
-		<article class="import-card"><div class="import-card-image"><img src="{% static 'imports/import 2.jpeg' %}" alt="Imported vehicle 2"><span class="import-number">02</span></div><div class="import-card-body"><h3 class="import-card-title">Vehicle title</h3><p class="import-card-description">Add your car description here.</p><div class="import-card-footer"><span class="import-card-price">Price coming soon</span><span class="import-card-link">View details</span></div></div></article>
-		<article class="import-card"><div class="import-card-image"><img src="{% static 'imports/import 3.jpeg' %}" alt="Imported vehicle 3"><span class="import-number">03</span></div><div class="import-card-body"><h3 class="import-card-title">Vehicle title</h3><p class="import-card-description">Add your car description here.</p><div class="import-card-footer"><span class="import-card-price">Price coming soon</span><span class="import-card-link">View details</span></div></div></article>
-		<article class="import-card"><div class="import-card-image"><img src="{% static 'imports/import 4.jpeg' %}" alt="Imported vehicle 4"><span class="import-number">04</span></div><div class="import-card-body"><h3 class="import-card-title">Vehicle title</h3><p class="import-card-description">Add your car description here.</p><div class="import-card-footer"><span class="import-card-price">Price coming soon</span><span class="import-card-link">View details</span></div></div></article>
-		<article class="import-card"><div class="import-card-image"><img src="{% static 'imports/import 5.jpeg' %}" alt="Imported vehicle 5"><span class="import-number">05</span></div><div class="import-card-body"><h3 class="import-card-title">Vehicle title</h3><p class="import-card-description">Add your car description here.</p><div class="import-card-footer"><span class="import-card-price">Price coming soon</span><span class="import-card-link">View details</span></div></div></article>
-		<article class="import-card"><div class="import-card-image"><img src="{% static 'imports/import 6.jpeg' %}" alt="Imported vehicle 6"><span class="import-number">06</span></div><div class="import-card-body"><h3 class="import-card-title">Vehicle title</h3><p class="import-card-description">Add your car description here.</p><div class="import-card-footer"><span class="import-card-price">Price coming soon</span><span class="import-card-link">View details</span></div></div></article>
-		<article class="import-card"><div class="import-card-image"><img src="{% static 'imports/import 7.jpeg' %}" alt="Imported vehicle 7"><span class="import-number">07</span></div><div class="import-card-body"><h3 class="import-card-title">Vehicle title</h3><p class="import-card-description">Add your car description here.</p><div class="import-card-footer"><span class="import-card-price">Price coming soon</span><span class="import-card-link">View details</span></div></div></article>
-		<article class="import-card"><div class="import-card-image"><img src="{% static 'imports/import 8.jpeg' %}" alt="Imported vehicle 8"><span class="import-number">08</span></div><div class="import-card-body"><h3 class="import-card-title">Vehicle title</h3><p class="import-card-description">Add your car description here.</p><div class="import-card-footer"><span class="import-card-price">Price coming soon</span><span class="import-card-link">View details</span></div></div></article>
-		<article class="import-card"><div class="import-card-image"><img src="{% static 'imports/import 9.jpeg' %}" alt="Imported vehicle 9"><span class="import-number">09</span></div><div class="import-card-body"><h3 class="import-card-title">Vehicle title</h3><p class="import-card-description">Add your car description here.</p><div class="import-card-footer"><span class="import-card-price">Price coming soon</span><span class="import-card-link">View details</span></div></div></article>
-		<article class="import-card"><div class="import-card-image"><img src="{% static 'imports/import 10.jpeg' %}" alt="Imported vehicle 10"><span class="import-number">10</span></div><div class="import-card-body"><h3 class="import-card-title">Vehicle title</h3><p class="import-card-description">Add your car description here.</p><div class="import-card-footer"><span class="import-card-price">Price coming soon</span><span class="import-card-link">View details</span></div></div></article>
-		<article class="import-card"><div class="import-card-image"><img src="{% static 'imports/import 11.jpeg' %}" alt="Imported vehicle 11"><span class="import-number">11</span></div><div class="import-card-body"><h3 class="import-card-title">Vehicle title</h3><p class="import-card-description">Add your car description here.</p><div class="import-card-footer"><span class="import-card-price">Price coming soon</span><span class="import-card-link">View details</span></div></div></article>
-		<article class="import-card"><div class="import-card-image"><img src="{% static 'imports/import 12.jpeg' %}" alt="Imported vehicle 12"><span class="import-number">12</span></div><div class="import-card-body"><h3 class="import-card-title">Vehicle title</h3><p class="import-card-description">Add your car description here.</p><div class="import-card-footer"><span class="import-card-price">Price coming soon</span><span class="import-card-link">View details</span></div></div></article>
-		<article class="import-card"><div class="import-card-image"><img src="{% static 'imports/import 13.jpeg' %}" alt="Imported vehicle 13"><span class="import-number">13</span></div><div class="import-card-body"><h3 class="import-card-title">Vehicle title</h3><p class="import-card-description">Add your car description here.</p><div class="import-card-footer"><span class="import-card-price">Price coming soon</span><span class="import-card-link">View details</span></div></div></article>
-		<article class="import-card"><div class="import-card-image"><img src="{% static 'imports/import 14.jpeg' %}" alt="Imported vehicle 14"><span class="import-number">14</span></div><div class="import-card-body"><h3 class="import-card-title">Vehicle title</h3><p class="import-card-description">Add your car description here.</p><div class="import-card-footer"><span class="import-card-price">Price coming soon</span><span class="import-card-link">View details</span></div></div></article>
-		<article class="import-card"><div class="import-card-image"><img src="{% static 'imports/import 15.jpeg' %}" alt="Imported vehicle 15"><span class="import-number">15</span></div><div class="import-card-body"><h3 class="import-card-title">Vehicle title</h3><p class="import-card-description">Add your car description here.</p><div class="import-card-footer"><span class="import-card-price">Price coming soon</span><span class="import-card-link">View details</span></div></div></article>
-		<article class="import-card"><div class="import-card-image"><img src="{% static 'imports/import 16.jpeg' %}" alt="Imported vehicle 16"><span class="import-number">16</span></div><div class="import-card-body"><h3 class="import-card-title">Vehicle title</h3><p class="import-card-description">Add your car description here.</p><div class="import-card-footer"><span class="import-card-price">Price coming soon</span><span class="import-card-link">View details</span></div></div></article>
-		<article class="import-card"><div class="import-card-image"><img src="{% static 'imports/import 17.jpeg' %}" alt="Imported vehicle 17"><span class="import-number">17</span></div><div class="import-card-body"><h3 class="import-card-title">Vehicle title</h3><p class="import-card-description">Add your car description here.</p><div class="import-card-footer"><span class="import-card-price">Price coming soon</span><span class="import-card-link">View details</span></div></div></article>
-		<article class="import-card"><div class="import-card-image"><img src="{% static 'imports/import 18.jpeg' %}" alt="Imported vehicle 18"><span class="import-number">18</span></div><div class="import-card-body"><h3 class="import-card-title">Vehicle title</h3><p class="import-card-description">Add your car description here.</p><div class="import-card-footer"><span class="import-card-price">Price coming soon</span><span class="import-card-link">View details</span></div></div></article>
-		<article class="import-card"><div class="import-card-image"><img src="{% static 'imports/import 19.jpeg' %}" alt="Imported vehicle 19"><span class="import-number">19</span></div><div class="import-card-body"><h3 class="import-card-title">Vehicle title</h3><p class="import-card-description">Add your car description here.</p><div class="import-card-footer"><span class="import-card-price">Price coming soon</span><span class="import-card-link">View details</span></div></div></article>
+		<article class="import-card"><div class="import-card-image"><img src="{% static 'imports/import 1.jpeg' %}" alt="Imported vehicle 1"><span class="import-number">01</span></div><div class="import-card-body"><h3 class="import-card-title">Vehicle title</h3><p class="import-card-description">Add your car description here.</p><div class="import-card-footer"><span class="import-card-price">Price coming soon</span><button class="import-card-link details-trigger" type="button" data-car-title="Vehicle title" data-car-price="Price coming soon" data-car-image="{% static 'imports/import 1.jpeg' %}" data-car-condition="Imported vehicle" data-car-body="Vehicle details" data-car-mileage="Available on request" data-car-status="Available" data-car-description="Add your car description here.">View details</button></div></div></article>
+		<article class="import-card"><div class="import-card-image"><img src="{% static 'imports/import 2.jpeg' %}" alt="Imported vehicle 2"><span class="import-number">02</span></div><div class="import-card-body"><h3 class="import-card-title">Vehicle title</h3><p class="import-card-description">Add your car description here.</p><div class="import-card-footer"><span class="import-card-price">Price coming soon</span><button class="import-card-link details-trigger" type="button" data-car-title="Vehicle title" data-car-price="Price coming soon" data-car-image="{% static 'imports/import 2.jpeg' %}" data-car-condition="Imported vehicle" data-car-body="Vehicle details" data-car-mileage="Available on request" data-car-status="Available" data-car-description="Add your car description here.">View details</button></div></div></article>
+		<article class="import-card"><div class="import-card-image"><img src="{% static 'imports/import 3.jpeg' %}" alt="Imported vehicle 3"><span class="import-number">03</span></div><div class="import-card-body"><h3 class="import-card-title">Vehicle title</h3><p class="import-card-description">Add your car description here.</p><div class="import-card-footer"><span class="import-card-price">Price coming soon</span><button class="import-card-link details-trigger" type="button" data-car-title="Vehicle title" data-car-price="Price coming soon" data-car-image="{% static 'imports/import 3.jpeg' %}" data-car-condition="Imported vehicle" data-car-body="Vehicle details" data-car-mileage="Available on request" data-car-status="Available" data-car-description="Add your car description here.">View details</button></div></div></article>
+		<article class="import-card"><div class="import-card-image"><img src="{% static 'imports/import 4.jpeg' %}" alt="Imported vehicle 4"><span class="import-number">04</span></div><div class="import-card-body"><h3 class="import-card-title">Vehicle title</h3><p class="import-card-description">Add your car description here.</p><div class="import-card-footer"><span class="import-card-price">Price coming soon</span><button class="import-card-link details-trigger" type="button" data-car-title="Vehicle title" data-car-price="Price coming soon" data-car-image="{% static 'imports/import 4.jpeg' %}" data-car-condition="Imported vehicle" data-car-body="Vehicle details" data-car-mileage="Available on request" data-car-status="Available" data-car-description="Add your car description here.">View details</button></div></div></article>
+		<article class="import-card"><div class="import-card-image"><img src="{% static 'imports/import 5.jpeg' %}" alt="Imported vehicle 5"><span class="import-number">05</span></div><div class="import-card-body"><h3 class="import-card-title">Vehicle title</h3><p class="import-card-description">Add your car description here.</p><div class="import-card-footer"><span class="import-card-price">Price coming soon</span><button class="import-card-link details-trigger" type="button" data-car-title="Vehicle title" data-car-price="Price coming soon" data-car-image="{% static 'imports/import 5.jpeg' %}" data-car-condition="Imported vehicle" data-car-body="Vehicle details" data-car-mileage="Available on request" data-car-status="Available" data-car-description="Add your car description here.">View details</button></div></div></article>
+		<article class="import-card"><div class="import-card-image"><img src="{% static 'imports/import 6.jpeg' %}" alt="Imported vehicle 6"><span class="import-number">06</span></div><div class="import-card-body"><h3 class="import-card-title">Vehicle title</h3><p class="import-card-description">Add your car description here.</p><div class="import-card-footer"><span class="import-card-price">Price coming soon</span><button class="import-card-link details-trigger" type="button" data-car-title="Vehicle title" data-car-price="Price coming soon" data-car-image="{% static 'imports/import 6.jpeg' %}" data-car-condition="Imported vehicle" data-car-body="Vehicle details" data-car-mileage="Available on request" data-car-status="Available" data-car-description="Add your car description here.">View details</button></div></div></article>
+		<article class="import-card"><div class="import-card-image"><img src="{% static 'imports/import 7.jpeg' %}" alt="Imported vehicle 7"><span class="import-number">07</span></div><div class="import-card-body"><h3 class="import-card-title">Vehicle title</h3><p class="import-card-description">Add your car description here.</p><div class="import-card-footer"><span class="import-card-price">Price coming soon</span><button class="import-card-link details-trigger" type="button" data-car-title="Vehicle title" data-car-price="Price coming soon" data-car-image="{% static 'imports/import 7.jpeg' %}" data-car-condition="Imported vehicle" data-car-body="Vehicle details" data-car-mileage="Available on request" data-car-status="Available" data-car-description="Add your car description here.">View details</button></div></div></article>
+		<article class="import-card"><div class="import-card-image"><img src="{% static 'imports/import 8.jpeg' %}" alt="Imported vehicle 8"><span class="import-number">08</span></div><div class="import-card-body"><h3 class="import-card-title">Vehicle title</h3><p class="import-card-description">Add your car description here.</p><div class="import-card-footer"><span class="import-card-price">Price coming soon</span><button class="import-card-link details-trigger" type="button" data-car-title="Vehicle title" data-car-price="Price coming soon" data-car-image="{% static 'imports/import 8.jpeg' %}" data-car-condition="Imported vehicle" data-car-body="Vehicle details" data-car-mileage="Available on request" data-car-status="Available" data-car-description="Add your car description here.">View details</button></div></div></article>
+		<article class="import-card"><div class="import-card-image"><img src="{% static 'imports/import 9.jpeg' %}" alt="Imported vehicle 9"><span class="import-number">09</span></div><div class="import-card-body"><h3 class="import-card-title">Vehicle title</h3><p class="import-card-description">Add your car description here.</p><div class="import-card-footer"><span class="import-card-price">Price coming soon</span><button class="import-card-link details-trigger" type="button" data-car-title="Vehicle title" data-car-price="Price coming soon" data-car-image="{% static 'imports/import 9.jpeg' %}" data-car-condition="Imported vehicle" data-car-body="Vehicle details" data-car-mileage="Available on request" data-car-status="Available" data-car-description="Add your car description here.">View details</button></div></div></article>
+		<article class="import-card"><div class="import-card-image"><img src="{% static 'imports/import 10.jpeg' %}" alt="Imported vehicle 10"><span class="import-number">10</span></div><div class="import-card-body"><h3 class="import-card-title">Vehicle title</h3><p class="import-card-description">Add your car description here.</p><div class="import-card-footer"><span class="import-card-price">Price coming soon</span><button class="import-card-link details-trigger" type="button" data-car-title="Vehicle title" data-car-price="Price coming soon" data-car-image="{% static 'imports/import 10.jpeg' %}" data-car-condition="Imported vehicle" data-car-body="Vehicle details" data-car-mileage="Available on request" data-car-status="Available" data-car-description="Add your car description here.">View details</button></div></div></article>
+		<article class="import-card"><div class="import-card-image"><img src="{% static 'imports/import 11.jpeg' %}" alt="Imported vehicle 11"><span class="import-number">11</span></div><div class="import-card-body"><h3 class="import-card-title">Vehicle title</h3><p class="import-card-description">Add your car description here.</p><div class="import-card-footer"><span class="import-card-price">Price coming soon</span><button class="import-card-link details-trigger" type="button" data-car-title="Vehicle title" data-car-price="Price coming soon" data-car-image="{% static 'imports/import 11.jpeg' %}" data-car-condition="Imported vehicle" data-car-body="Vehicle details" data-car-mileage="Available on request" data-car-status="Available" data-car-description="Add your car description here.">View details</button></div></div></article>
+		<article class="import-card"><div class="import-card-image"><img src="{% static 'imports/import 12.jpeg' %}" alt="Imported vehicle 12"><span class="import-number">12</span></div><div class="import-card-body"><h3 class="import-card-title">Vehicle title</h3><p class="import-card-description">Add your car description here.</p><div class="import-card-footer"><span class="import-card-price">Price coming soon</span><button class="import-card-link details-trigger" type="button" data-car-title="Vehicle title" data-car-price="Price coming soon" data-car-image="{% static 'imports/import 12.jpeg' %}" data-car-condition="Imported vehicle" data-car-body="Vehicle details" data-car-mileage="Available on request" data-car-status="Available" data-car-description="Add your car description here.">View details</button></div></div></article>
+		<article class="import-card"><div class="import-card-image"><img src="{% static 'imports/import 13.jpeg' %}" alt="Imported vehicle 13"><span class="import-number">13</span></div><div class="import-card-body"><h3 class="import-card-title">Vehicle title</h3><p class="import-card-description">Add your car description here.</p><div class="import-card-footer"><span class="import-card-price">Price coming soon</span><button class="import-card-link details-trigger" type="button" data-car-title="Vehicle title" data-car-price="Price coming soon" data-car-image="{% static 'imports/import 13.jpeg' %}" data-car-condition="Imported vehicle" data-car-body="Vehicle details" data-car-mileage="Available on request" data-car-status="Available" data-car-description="Add your car description here.">View details</button></div></div></article>
+		<article class="import-card"><div class="import-card-image"><img src="{% static 'imports/import 14.jpeg' %}" alt="Imported vehicle 14"><span class="import-number">14</span></div><div class="import-card-body"><h3 class="import-card-title">Vehicle title</h3><p class="import-card-description">Add your car description here.</p><div class="import-card-footer"><span class="import-card-price">Price coming soon</span><button class="import-card-link details-trigger" type="button" data-car-title="Vehicle title" data-car-price="Price coming soon" data-car-image="{% static 'imports/import 14.jpeg' %}" data-car-condition="Imported vehicle" data-car-body="Vehicle details" data-car-mileage="Available on request" data-car-status="Available" data-car-description="Add your car description here.">View details</button></div></div></article>
+		<article class="import-card"><div class="import-card-image"><img src="{% static 'imports/import 15.jpeg' %}" alt="Imported vehicle 15"><span class="import-number">15</span></div><div class="import-card-body"><h3 class="import-card-title">Vehicle title</h3><p class="import-card-description">Add your car description here.</p><div class="import-card-footer"><span class="import-card-price">Price coming soon</span><button class="import-card-link details-trigger" type="button" data-car-title="Vehicle title" data-car-price="Price coming soon" data-car-image="{% static 'imports/import 15.jpeg' %}" data-car-condition="Imported vehicle" data-car-body="Vehicle details" data-car-mileage="Available on request" data-car-status="Available" data-car-description="Add your car description here.">View details</button></div></div></article>
+		<article class="import-card"><div class="import-card-image"><img src="{% static 'imports/import 16.jpeg' %}" alt="Imported vehicle 16"><span class="import-number">16</span></div><div class="import-card-body"><h3 class="import-card-title">Vehicle title</h3><p class="import-card-description">Add your car description here.</p><div class="import-card-footer"><span class="import-card-price">Price coming soon</span><button class="import-card-link details-trigger" type="button" data-car-title="Vehicle title" data-car-price="Price coming soon" data-car-image="{% static 'imports/import 16.jpeg' %}" data-car-condition="Imported vehicle" data-car-body="Vehicle details" data-car-mileage="Available on request" data-car-status="Available" data-car-description="Add your car description here.">View details</button></div></div></article>
+		<article class="import-card"><div class="import-card-image"><img src="{% static 'imports/import 17.jpeg' %}" alt="Imported vehicle 17"><span class="import-number">17</span></div><div class="import-card-body"><h3 class="import-card-title">Vehicle title</h3><p class="import-card-description">Add your car description here.</p><div class="import-card-footer"><span class="import-card-price">Price coming soon</span><button class="import-card-link details-trigger" type="button" data-car-title="Vehicle title" data-car-price="Price coming soon" data-car-image="{% static 'imports/import 17.jpeg' %}" data-car-condition="Imported vehicle" data-car-body="Vehicle details" data-car-mileage="Available on request" data-car-status="Available" data-car-description="Add your car description here.">View details</button></div></div></article>
+		<article class="import-card"><div class="import-card-image"><img src="{% static 'imports/import 18.jpeg' %}" alt="Imported vehicle 18"><span class="import-number">18</span></div><div class="import-card-body"><h3 class="import-card-title">Vehicle title</h3><p class="import-card-description">Add your car description here.</p><div class="import-card-footer"><span class="import-card-price">Price coming soon</span><button class="import-card-link details-trigger" type="button" data-car-title="Vehicle title" data-car-price="Price coming soon" data-car-image="{% static 'imports/import 18.jpeg' %}" data-car-condition="Imported vehicle" data-car-body="Vehicle details" data-car-mileage="Available on request" data-car-status="Available" data-car-description="Add your car description here.">View details</button></div></div></article>
+		<article class="import-card"><div class="import-card-image"><img src="{% static 'imports/import 19.jpeg' %}" alt="Imported vehicle 19"><span class="import-number">19</span></div><div class="import-card-body"><h3 class="import-card-title">Vehicle title</h3><p class="import-card-description">Add your car description here.</p><div class="import-card-footer"><span class="import-card-price">Price coming soon</span><button class="import-card-link details-trigger" type="button" data-car-title="Vehicle title" data-car-price="Price coming soon" data-car-image="{% static 'imports/import 19.jpeg' %}" data-car-condition="Imported vehicle" data-car-body="Vehicle details" data-car-mileage="Available on request" data-car-status="Available" data-car-description="Add your car description here.">View details</button></div></div></article>
 	</div>
 	{% endif %}
 	<div class="imports-note">
@@ -130,4 +146,88 @@
 		<p>Tell us what you have in mind and our team can help you find the right imported vehicle and explain the payment options available.</p>
 	</div>
 </section>
+
+<div class="car-modal" id="carModal" aria-hidden="true">
+	<div class="car-modal-backdrop" data-close-modal></div>
+	<div class="car-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="carModalTitle">
+		<button class="car-modal-close" type="button" aria-label="Close" data-close-modal>&times;</button>
+		<div class="car-modal-layout">
+			<div class="car-modal-image">
+				<img id="carModalImage" src="" alt="Vehicle preview">
+			</div>
+			<div class="car-modal-body">
+				<p class="car-modal-kicker">Vehicle details</p>
+				<h3 class="car-modal-title" id="carModalTitle">Vehicle title</h3>
+				<p class="car-modal-price" id="carModalPrice">Price</p>
+				<div class="car-modal-meta">
+					<div><span>Condition</span><strong id="carModalCondition">-</strong></div>
+					<div><span>Body type</span><strong id="carModalBody">-</strong></div>
+					<div><span>Mileage</span><strong id="carModalMileage">-</strong></div>
+					<div><span>Status</span><strong id="carModalStatus">-</strong></div>
+				</div>
+				<p class="car-modal-description" id="carModalDescription">Vehicle details will appear here.</p>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	(function () {
+		const modal = document.getElementById('carModal');
+		const image = document.getElementById('carModalImage');
+		const title = document.getElementById('carModalTitle');
+		const price = document.getElementById('carModalPrice');
+		const condition = document.getElementById('carModalCondition');
+		const body = document.getElementById('carModalBody');
+		const mileage = document.getElementById('carModalMileage');
+		const status = document.getElementById('carModalStatus');
+		const description = document.getElementById('carModalDescription');
+		const triggers = document.querySelectorAll('.details-trigger');
+		const closeButtons = document.querySelectorAll('[data-close-modal]');
+
+		function openModal(car) {
+			if (!modal) return;
+			if (car.image) image.src = car.image;
+			else image.src = '{% static "images/car01.jpeg" %}';
+			title.textContent = car.title || 'Vehicle details';
+			price.textContent = car.price || 'Price available on request';
+			condition.textContent = car.condition || 'Not specified';
+			body.textContent = car.body || 'Not specified';
+			mileage.textContent = car.mileage || 'Available on request';
+			status.textContent = car.status || 'Available';
+			description.textContent = car.description || 'No detailed description has been added for this vehicle yet.';
+			modal.classList.add('is-open');
+			modal.setAttribute('aria-hidden', 'false');
+		}
+
+		function closeModal() {
+			if (!modal) return;
+			modal.classList.remove('is-open');
+			modal.setAttribute('aria-hidden', 'true');
+		}
+
+		triggers.forEach((trigger) => {
+			trigger.addEventListener('click', function () {
+				openModal({
+					image: this.dataset.carImage || '',
+					title: this.dataset.carTitle || 'Vehicle details',
+					price: this.dataset.carPrice || 'Price available on request',
+					condition: this.dataset.carCondition || 'Not specified',
+					body: this.dataset.carBody || 'Not specified',
+					mileage: this.dataset.carMileage || 'Available on request',
+					status: this.dataset.carStatus || 'Available',
+					description: this.dataset.carDescription || 'No detailed description has been added for this vehicle yet.'
+				});
+			});
+		});
+
+		closeButtons.forEach((button) => {
+			button.addEventListener('click', closeModal);
+		});
+
+		document.addEventListener('keydown', function (event) {
+			if (event.key === 'Escape') closeModal();
+		});
+	})();
+</script>
 {% endblock %}
