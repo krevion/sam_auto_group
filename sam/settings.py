@@ -29,9 +29,15 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'dev-only-change-this-secret-ke
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() == 'true'
 
 allowed_hosts = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,testserver').split(',')
-render_hostname = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
-if render_hostname:
-    allowed_hosts.append(render_hostname)
+for host_value in [
+    os.environ.get('APP_URL'),
+    os.environ.get('CUSTOM_DOMAIN'),
+    os.environ.get('RENDER_EXTERNAL_HOSTNAME'),
+]:
+    if host_value:
+        host = host_value.replace('https://', '').replace('http://', '').rstrip('/')
+        if host and host not in allowed_hosts:
+            allowed_hosts.append(host)
 ALLOWED_HOSTS = [host.strip() for host in allowed_hosts if host.strip()]
 
 
@@ -137,8 +143,15 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 csrf_origins = os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',')
-if render_hostname:
-    csrf_origins.append(f'https://{render_hostname}')
+for origin in [
+    os.environ.get('APP_URL'),
+    os.environ.get('CUSTOM_DOMAIN'),
+    os.environ.get('RENDER_EXTERNAL_HOSTNAME') and f'https://{os.environ.get("RENDER_EXTERNAL_HOSTNAME")}',
+]:
+    if origin:
+        origin = origin.rstrip('/')
+        if origin not in csrf_origins:
+            csrf_origins.append(origin)
 CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in csrf_origins if origin.strip()]
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
