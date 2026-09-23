@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Booking, Car, ContactMessage
+from .models import Booking, Car, CarImage, ContactMessage
 
 
 @admin.register(Car)
@@ -9,6 +9,12 @@ class CarAdmin(admin.ModelAdmin):
 	list_filter = ('is_import', 'availability', 'condition', 'featured', 'body_type')
 	search_fields = ('make', 'model', 'description')
 	list_editable = ('is_import', 'featured', 'availability')
+
+
+@admin.register(CarImage)
+class CarImageAdmin(admin.ModelAdmin):
+	list_display = ('car', 'caption', 'uploaded_at')
+	search_fields = ('car__make', 'car__model', 'caption')
 
 
 @admin.register(ContactMessage)

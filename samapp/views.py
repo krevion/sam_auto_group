@@ -297,7 +297,12 @@ def cars(request):
 
 def car_detail(request, pk):
 	car = get_object_or_404(Car, pk=pk)
-	return render(request, 'cars.html', {'car': car, 'cars': [car], 'inventory': [car]})
+	gallery_images = list(car.images.all())
+	return render(request, 'car_detail.html', {
+		'car': car,
+		'gallery_images': gallery_images,
+		'primary_image': car.display_image,
+	})
 
 
 def about_us(request):

@@ -43,6 +43,23 @@ class Car(models.Model):
 			return self.image.url
 		return self.image_url
 
+	@property
+	def gallery_images(self):
+		return list(self.images.all())
+
+
+class CarImage(models.Model):
+	car = models.ForeignKey(Car, on_delete=models.CASCADE, related_name='images')
+	image = models.ImageField(upload_to='cars/gallery/')
+	caption = models.CharField(max_length=200, blank=True)
+	uploaded_at = models.DateTimeField(auto_now_add=True)
+
+	class Meta:
+		ordering = ('uploaded_at',)
+
+	def __str__(self):
+		return f'{self.car} - {self.caption or "gallery image"}'
+
 
 class ContactMessage(models.Model):
 	name = models.CharField(max_length=120)
