@@ -1,7 +1,9 @@
+from django.contrib import admin
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.urls import reverse
 
+from .admin import CarAdmin, CarImageInline
 from .models import Car, CarImage
 
 
@@ -37,3 +39,12 @@ class CarDetailViewTests(TestCase):
         self.assertContains(response, '/media/cars/gallery/')
         self.assertContains(response, 'image 1')
         self.assertContains(response, 'image 2')
+
+
+class CarAdminInventoryTests(TestCase):
+    def test_car_admin_supports_gallery_images_and_price_updates(self):
+        self.assertIn(CarImageInline, CarAdmin.inlines)
+        self.assertIn('price', CarAdmin.list_editable)
+        self.assertIn('availability', CarAdmin.list_editable)
+        self.assertTrue(hasattr(CarAdmin, 'fieldsets'))
+        self.assertIn('description', str(CarAdmin.fieldsets))
